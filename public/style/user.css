@@ -1,0 +1,131 @@
+/* User-specific dashboard overrides (keeps admin styles untouched) */
+
+/* Constrain content column and left-align it next to the sidebar */
+.user-open .main {
+  padding: 28px 40px;
+}
+.user-open .topbar {
+  max-width: 980px;
+  margin-left: 8px;
+  padding: 18px 20px;
+  border-radius: 12px;
+}
+.user-open .topbar .title-block { padding-right: 12px; }
+.user-open .page-title { font-size: 1.25rem; color: var(--muted); }
+.user-open .page-subtitle { color: rgba(0,0,0,0.6); margin-top:6px; }
+
+/* Content column that aligns to the left and keeps consistent width */
+.user-open .content {
+  max-width: 980px;
+  margin-left: 8px;
+}
+
+/* Duties panel style: stronger glass card and left-aligned content */
+.user-open .duties-table {
+  background: var(--glass-bg);
+  border-radius: 12px;
+  padding: 24px 26px 28px;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.user-open .duties-table .table-header h2 { margin: 0 0 8px 0; color: var(--muted); }
+
+.user-open .duties-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.user-open .duties-cards .card {
+  background: #fff; /* white cards for clarity */
+  color: var(--text-color);
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.user-open .duties-cards .card h3 { margin: 0 0 8px 0; color: var(--muted); font-weight:700 }
+.user-open .duties-cards .card .meta { color: rgba(0,0,0,0.6); margin-bottom: 8px }
+.user-open .duties-cards .card .desc { color: rgba(0,0,0,0.8); margin-bottom: 12px }
+.user-open .duties-cards .card:hover { transform: translateY(-6px); box-shadow: 0 16px 36px rgba(0,0,0,0.10); }
+
+/* Make actions stand out and aligned left */
+.user-open .duties-cards .card .card-actions { justify-content: flex-start; margin-top: 6px }
+.user-open .duties-cards .card .btn.small { padding: 8px 12px }
+
+.progress-panel {
+  padding: 18px 20px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+  transition: transform 0.2s ease;
+}
+.progress-panel:hover { transform: translateY(-2px); }
+.progress-labels { display:flex; justify-content:space-between; font-size:0.9rem; color:rgba(0,0,0,0.65); margin-bottom:6px; }
+.progress-bar { width:100%; height:8px; background: rgba(0,0,0,0.05); border-radius:999px; overflow:hidden; }
+.progress-fill { display:block; height:100%; background: linear-gradient(135deg, #4aa3ff, #0b5ed7); width:0%; transition: width 0.3s ease; }
+.progress-panel button { margin-top: 14px; width: 100%; font-weight: 600; }
+.slots-form { display:flex; flex-direction:column; gap:16px; }
+.status { padding: 12px 16px; border-radius: 12px; font-size: 0.92rem; margin: 0; border: 1px solid transparent; }
+.status.success { background: rgba(16, 185, 129, 0.12); color: #0f766e; border-color: rgba(16, 185, 129, 0.3); }
+.status.error { background: rgba(248, 113, 113, 0.12); color: #9b1c1c; border-color: rgba(248, 113, 113, 0.3); }
+.status.info { background: rgba(59, 130, 246, 0.08); color: #1d4ed8; border-color: rgba(59, 130, 246, 0.3); }
+.button-wrapper { position: relative; margin-top: 12px; }
+.button-overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0);
+  border-radius: inherit;
+}
+.button-overlay.visible { display: block; }
+.slot-select { display:flex; align-items:center; gap:6px; margin-top:10px; font-weight:600; color: var(--accent); cursor:pointer; }
+.slot-select input { accent-color: var(--accent); }
+
+.user-open .duties-cards .card .meta-row { display:flex; justify-content:space-between; gap:14px; font-size:0.92rem; margin-bottom:12px; }
+.user-open .duties-cards .card .card-divider { border: 0; border-top: 1px solid rgba(0,0,0,0.08); margin: 0 0 14px; }
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .user-open .main { padding: 18px; padding-top: 18px; }
+  .user-open .content { max-width: 100%; margin-left: 0; }
+  .user-open .topbar { margin-left: 0; position: static; left: auto; right: auto; top: auto; width: auto; }
+  .user-open .duties-cards { grid-template-columns: 1fr; }
+}
+
+/* Fixed header behavior for larger screens */
+@media (min-width: 901px) {
+  .user-open .main { padding-top: 28px; }
+  .user-open .topbar {
+    background: var(--glass-bg);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    padding: 18px 32px 14px 32px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 70px;
+  }
+  .user-open .page-title {
+    color: var(--muted);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .user-open .top-actions { margin-left: auto; }
+  .user-open .btn.primary { background: linear-gradient(135deg, var(--accent), #0056b3); color: #fff; padding:8px 12px; border-radius:8px; box-shadow: 0 6px 18px rgba(0,123,255,0.18); text-decoration:none; display:inline-block }
+  .user-open .btn.primary:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(0,123,255,0.2) }
+  .user-open .btn:focus { outline: 3px solid rgba(0,123,255,0.14); outline-offset:2px }
+  .user-open .btn.loading { opacity:0.9 }
+  .user-open .btn.loading::after { content: ''; display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.6); border-top-color: transparent; border-radius:50%; animation: spin 0.8s linear infinite; margin-left:8px; vertical-align:middle }
+  @keyframes spin { to { transform: rotate(360deg) } }
+}
+

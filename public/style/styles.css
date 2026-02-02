@@ -1,0 +1,136 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+    /* center page content and ensure full height for vertical centering */
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.container {
+    max-width: 420px;
+    width: 100%;
+    padding: 32px;
+    border-radius: 14px;
+    /* glassmorphism background */
+    /* slightly darker translucent layer for better contrast */
+    background: linear-gradient(180deg, rgba(10,12,20,0.58), rgba(6,8,16,0.54));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 40px rgba(2, 6, 23, 0.55);
+    backdrop-filter: blur(10px) saturate(120%);
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+    color: #f7f9fb;
+}
+
+h1 {
+    text-align: center;
+    color: #ffffff;
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-size: 1.6rem;
+}
+
+.container p, .container label, .container a {
+    color: rgba(255,255,255,0.95);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    box-sizing: border-box;
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    outline: none;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+input[type="text"]::placeholder,
+input[type="password"]::placeholder {
+    color: rgba(255,255,255,0.6);
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    box-shadow: 0 4px 14px rgba(79, 84, 255, 0.12);
+    border-color: rgba(120, 150, 255, 0.85);
+}
+
+button.btn {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, rgba(83, 163, 255, 0.9), rgba(119, 102, 255, 0.9));
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(56, 96, 255, 0.18);
+}
+
+button.btn:hover {
+    transform: translateY(-1px);
+}
+
+.error {
+    color: #ffdddd;
+    background: rgba(255, 0, 0, 0.12);
+    padding: 8px 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.success {
+    color: #eaffea;
+    background: rgba(0, 200, 100, 0.08);
+    padding: 8px 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+        border-radius: 12px;
+    }
+}
+
+/* Dashboard grid and cards */
+.container.dashboard { max-width: 1200px; width: 100%; }
+.dashboard-header h1 { margin: 0; font-size: 1.6rem; }
+.dashboard-grid { margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.card { background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)); padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.04); box-shadow: 0 10px 30px rgba(2,6,23,0.35); }
+.card h3 { margin: 0 0 8px 0; color: #fff; font-size: 1.05rem; }
+.card .meta { color: rgba(255,255,255,0.75); font-size: 0.85rem; margin: 0 0 8px 0; }
+.card .desc { color: rgba(255,255,255,0.88); font-size: 0.95rem; margin-bottom: 12px; }
+.card-actions { display: flex; gap:8px; justify-content: flex-end; }
+.btn.small { display: inline-block; width: auto; padding: 8px 12px; font-size: 0.9rem; border-radius: 8px; }
+.card.empty { text-align: center; color: rgba(255,255,255,0.9); }
+
+.card { transition: transform 0.18s ease, box-shadow 0.18s ease; }
+.card:hover { transform: translateY(-6px); box-shadow: 0 18px 42px rgba(2,6,23,0.5); }
+
+@media (max-width: 480px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
