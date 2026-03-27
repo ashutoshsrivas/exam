@@ -113,6 +113,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errorMessage = 'You are not allowed to select slots for this duty.';
         }
         if ($errorMessage === '') {
+            // Check live availability per selected slot (exclude current user to avoid blocking unchanged saves)
+            $countStmt = $conn->prepare("SELECT COUNT(*) AS taken FROM preferences WHERE slotid = ? AND userid <> ?");
+            foreach ($validSelections as $slotId) {
+                $requirement = isset($slotMap[$slotId]) ? intval($slotMap[$slotId]['requirement']) : 0;
+                if ($requirement <= 0) {
+                    $errorMessage = 'Selected slot is not available.';
+                    break;
+                }
+                $countStmt->bind_param('ii', $slotId, $user_id);
+                $countStmt->execute();
+                $takenRow = $countStmt->get_result()->fetch_assoc();
+                $taken = intval($takenRow['taken'] ?? 0);
+                if ($taken >= $requirement) {
+                    $errorMessage = 'Slot "' . htmlspecialchars($slotMap[$slotId]['slottext']) . '" is already full. Please choose another.';
+                    break;
+                }
+            }
+            $countStmt->close();
+        }
+
+        if ($errorMessage === '') {
+            // Proceed with save inside a transaction to reduce race risk
+            $conn->begin_transaction();
+
             $deleteStmt = $conn->prepare("DELETE p FROM preferences p JOIN slot s ON p.slotid = s.id WHERE p.userid = ? AND s.duty = ?");
             $deleteStmt->bind_param('ii', $user_id, $duty_id);
             $deleteStmt->execute();
@@ -126,6 +150,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $insertStmt->close();
             }
+
+            $conn->commit();
 
             header("Location: slots.php?duty={$duty_id}&status=saved");
             exit;
