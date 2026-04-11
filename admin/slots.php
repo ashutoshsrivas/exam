@@ -345,10 +345,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                                             View Applicants
                                         </button>
                                     </form>
-                                    <button class="btn small edit-btn" onclick="openEditModal(<?= $slot['id'] ?>, '<?= addslashes(htmlspecialchars($slot['slottext'])) ?>', '<?= addslashes(htmlspecialchars($slot['slottime'])) ?>', '<?= addslashes(htmlspecialchars($slot['slotdate'])) ?>', <?= $slot['requirement'] ?>)" title="Edit Slot">
+                                    <button class="btn small edit-btn" onclick="openEditModal(<?= $slot['id'] ?>, <?= json_encode($slot['slottext']) ?>, <?= json_encode($slot['slottime']) ?>, <?= json_encode($slot['slotdate']) ?>, <?= $slot['requirement'] ?>)" title="Edit Slot">
                                         ✏️ Edit
                                     </button>
-                                    <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this slot?')">
+                                    <form method="post" action="" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this slot?')">
                                         <input type="hidden" name="delete_slot" value="1">
                                         <input type="hidden" name="slot_id" value="<?= $slot['id'] ?>">
                                         <button type="submit" class="btn small delete-btn" title="Delete Slot">
