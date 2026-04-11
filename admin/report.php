@@ -11,7 +11,11 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SE
 }
 require_once '../lib/conn.php';
 
-$conn->query("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(20) DEFAULT NULL AFTER email");
+// Check if phone column exists, add if missing (for backwards compatibility)
+$columns = $conn->query("SHOW COLUMNS FROM users LIKE 'phone'");
+if ($columns && $columns->num_rows === 0) {
+    @$conn->query("ALTER TABLE users ADD COLUMN phone VARCHAR(20) DEFAULT NULL AFTER email");
+}
 
 $username = htmlspecialchars($_SESSION['username']);
 $active_page = 'reports';

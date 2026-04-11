@@ -14,8 +14,11 @@ $active_page = 'users';
 
 require_once '../lib/conn.php';
 
-// Keep existing installations compatible by creating the column if missing.
-$conn->query("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(20) DEFAULT NULL AFTER email");
+// Check if phone column exists, add if missing (for backwards compatibility)
+$columns = $conn->query("SHOW COLUMNS FROM users LIKE 'phone'");
+if ($columns && $columns->num_rows === 0) {
+    @$conn->query("ALTER TABLE users ADD COLUMN phone VARCHAR(20) DEFAULT NULL AFTER email");
+}
 
 $query = "SELECT id, name, email, phone, employeeid, role FROM users ORDER BY id";
 $result = $conn->query($query);
