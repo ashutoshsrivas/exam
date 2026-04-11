@@ -29,10 +29,10 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `duties` (
   `id` int(11) NOT NULL,
-  `title` text DEFAULT NULL,
-  `academicsession` text DEFAULT NULL,
-  `type` text DEFAULT NULL,
-  `createdat` text DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `academicsession` varchar(100) DEFAULT NULL,
+  `type` varchar(100) DEFAULT NULL,
+  `createdat` varchar(50) DEFAULT NULL,
   `professor` int(11) DEFAULT 4,
   `assistantprofessor` int(11) DEFAULT 8,
   `associateprofessor` int(11) DEFAULT 6,
@@ -54,7 +54,7 @@ INSERT INTO `duties` (`id`, `title`, `academicsession`, `type`, `createdat`, `pr
 
 CREATE TABLE `limits` (
   `id` int(11) NOT NULL,
-  `role` text DEFAULT NULL,
+  `role` varchar(100) DEFAULT NULL,
   `duties` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -98,7 +98,7 @@ INSERT INTO `preferences` (`id`, `slotid`, `userid`, `times`) VALUES
 
 CREATE TABLE `rooms` (
   `id` int(11) NOT NULL,
-  `name` text DEFAULT NULL,
+  `name` varchar(100) DEFAULT NULL,
   `need` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -119,9 +119,9 @@ INSERT INTO `rooms` (`id`, `name`, `need`) VALUES
 CREATE TABLE `slot` (
   `id` int(11) NOT NULL,
   `duty` int(11) DEFAULT NULL,
-  `slottext` text DEFAULT NULL,
-  `slottime` text DEFAULT NULL,
-  `slotdate` text DEFAULT NULL,
+  `slottext` varchar(255) DEFAULT NULL,
+  `slottime` varchar(10) DEFAULT NULL,
+  `slotdate` varchar(20) DEFAULT NULL,
   `requirement` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -142,13 +142,13 @@ INSERT INTO `slot` (`id`, `duty`, `slottext`, `slottime`, `slotdate`, `requireme
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
-  `employeeid` text DEFAULT NULL,
-  `name` text DEFAULT NULL,
-  `email` text DEFAULT NULL,
+  `employeeid` varchar(50) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `email` varchar(191) DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
-  `pass` text DEFAULT NULL,
-  `role` text DEFAULT NULL,
-  `department` text DEFAULT NULL
+  `pass` char(64) DEFAULT NULL,
+  `role` varchar(100) DEFAULT NULL,
+  `department` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -603,7 +603,7 @@ ALTER TABLE `duties`
 --
 ALTER TABLE `limits`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `role` (`role`) USING HASH;
+  ADD UNIQUE KEY `role` (`role`);
 
 --
 -- Indexes for table `preferences`
@@ -616,7 +616,7 @@ ALTER TABLE `preferences`
 --
 ALTER TABLE `rooms`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`) USING HASH;
+  ADD UNIQUE KEY `name` (`name`);
 
 --
 -- Indexes for table `slot`
@@ -629,7 +629,7 @@ ALTER TABLE `slot`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `employeeid` (`employeeid`) USING HASH;
+  ADD UNIQUE KEY `employeeid` (`employeeid`);
 
 --
 -- AUTO_INCREMENT for dumped tables

@@ -1,4 +1,9 @@
 <?php
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'admin') {
     header('Location: ../login.php');
@@ -181,9 +186,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php foreach ($users as $user): ?>
                 <div 
                     class="user-card"
-                    data-name="<?= strtolower(htmlspecialchars($user['name'])) ?>"
-                    data-email="<?= strtolower(htmlspecialchars($user['email'])) ?>"
-                    data-employeeid="<?= strtolower(htmlspecialchars($user['employeeid'])) ?>"
+                    data-name="<?= strtolower(htmlspecialchars($user['name'] ?? '')) ?>"
+                    data-email="<?= strtolower(htmlspecialchars($user['email'] ?? '')) ?>"
+                    data-employeeid="<?= strtolower(htmlspecialchars($user['employeeid'] ?? '')) ?>"
                 >
                     <div class="card-header">
                         <div class="user-avatar">
@@ -204,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="user-detail">
                             <span class="label">Email</span>
-                            <span class="value email-value"><?= htmlspecialchars($user['email']) ?></span>
+                            <span class="value email-value"><?= htmlspecialchars($user['email'] ?? '(None)') ?></span>
                         </div>
                         <div class="user-detail">
                             <span class="label">Phone</span>
@@ -222,11 +227,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             class="btn small"
                             onclick="openEditModal(this)"
                             data-id="<?= htmlspecialchars($user['id']) ?>"
-                            data-employeeid="<?= htmlspecialchars($user['employeeid'], ENT_QUOTES) ?>"
-                            data-name="<?= htmlspecialchars($user['name'], ENT_QUOTES) ?>"
-                            data-email="<?= htmlspecialchars($user['email'], ENT_QUOTES) ?>"
+                            data-employeeid="<?= htmlspecialchars($user['employeeid'] ?? '', ENT_QUOTES) ?>"
+                            data-name="<?= htmlspecialchars($user['name'] ?? '', ENT_QUOTES) ?>"
+                            data-email="<?= htmlspecialchars($user['email'] ?? '', ENT_QUOTES) ?>"
                             data-phone="<?= htmlspecialchars($user['phone'] ?? '', ENT_QUOTES) ?>"
-                            data-role="<?= htmlspecialchars($user['role'], ENT_QUOTES) ?>"
+                            data-role="<?= htmlspecialchars($user['role'] ?? '', ENT_QUOTES) ?>"
                         >Edit User</button>
                         <form method="post" style="flex:1;" onsubmit="return confirm('Delete this user? This action cannot be undone.');">
                             <input type="hidden" name="delete_user" value="1">
