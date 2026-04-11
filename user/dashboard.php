@@ -117,5 +117,6 @@ if ($r = $conn->query("SELECT COUNT(*) as cnt FROM slot")) {
         btn.style.pointerEvents = 'none';
     });
     </script>
+    <script src="../public/js/admin.js"></script>
 </body>
 </html>

@@ -182,43 +182,327 @@ foreach ($checkedSlotIds as $slotId) {
     <link rel="stylesheet" href="../public/style/user.css">
     <link rel="stylesheet" href="../public/style/admin.css">
     <style>
-        .date-group { margin-bottom: 28px; }
-        .date-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: 1rem; font-weight: 600; color: rgba(0,0,0,0.75); margin-bottom: 12px; }
-        .date-heading .date-label { color: #0d6efd; font-size: 1.05rem; }
-        .date-heading .date-subtitle { font-size: 0.85rem; color: rgba(0,0,0,0.45); }
-        .date-slots-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; }
+        /* Date Group & Heading */
+        .date-group { 
+            margin-bottom: 32px;
+        }
+        
+        .date-heading { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 16px; 
+            padding: 16px 0 8px 0;
+            border-bottom: 2px solid rgba(20, 108, 148, 0.12);
+            margin-bottom: 18px;
+        }
+        
+        .date-heading .date-label { 
+            color: var(--accent-strong);
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        
+        .date-heading .date-subtitle { 
+            font-size: 0.85rem; 
+            color: var(--muted-soft);
+            margin-left: auto;
+        }
+        
+        /* Slot Cards Grid */
+        .date-slots-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 14px;
+        }
+        
         .date-slots-grid .card {
-            padding: 10px;
+            padding: 16px;
             cursor: pointer;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+            border: 2px solid rgba(20, 108, 148, 0.08);
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,251,252,0.85));
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
+        
+        /* Decorative background gradient on hover */
+        .date-slots-grid .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(20, 108, 148, 0.04), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+        }
+        
+        /* Initial state */
+        .date-slots-grid .card:not(.selected):not(:disabled):hover::before {
+            opacity: 1;
+        }
+        
+        /* Hover State */
+        .date-slots-grid .card:not(:disabled):hover {
+            border-color: rgba(20, 108, 148, 0.2);
+            box-shadow: 0 12px 28px rgba(20, 108, 148, 0.12);
+            transform: translateY(-4px);
+        }
+        
+        /* Selected State */
         .date-slots-grid .card.selected {
-            border-color: #0d6efd;
-            background: linear-gradient(180deg, rgba(13, 110, 253, 0.12), rgba(13, 110, 253, 0.02));
-            box-shadow: 0 20px 35px rgba(13, 110, 253, 0.15);
+            border: 2px solid var(--accent);
+            background: linear-gradient(135deg, rgba(20, 108, 148, 0.08), rgba(20, 108, 148, 0.02));
+            box-shadow: 0 16px 40px rgba(20, 108, 148, 0.18);
+            transform: scale(1.02);
         }
-        .date-slots-grid .card:hover {
-            transform: translateY(-2px);
+        
+        .date-slots-grid .card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(20, 108, 148, 0.25);
         }
+        
+        /* Disabled State */
+        .date-slots-grid .card:disabled,
+        .date-slots-grid .card[data-disabled="true"] {
+            opacity: 0.58;
+            cursor: not-allowed;
+            background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(248,251,252,0.5));
+            border-color: rgba(20, 108, 148, 0.05);
+        }
+        
+        .date-slots-grid .card:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Full Badge */
+        .date-slots-grid .card[data-full="true"] {
+            border-color: rgba(176, 42, 55, 0.15);
+        }
+        
+        .date-slots-grid .card[data-full="true"] .slot-availability::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--danger);
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        /* Card Title */
         .date-slots-grid .card h3 {
-            margin-bottom: 4px;
+            margin: 0;
+            margin-top: 4px;
             font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-color);
+            line-height: 1.3;
+            word-break: break-word;
         }
+        
+        /* Card Time/Meta */
+        .date-slots-grid .card .meta {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .date-slots-grid .card .meta::before {
+            content: '🕐';
+            font-size: 0.9rem;
+        }
+        
+        /* Availability Badge */
         .slot-availability {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 14px;
+            right: 14px;
             font-size: 0.75rem;
-            color: rgba(0, 0, 0, 0.55);
+            font-weight: 700;
+            color: var(--muted-soft);
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.1em;
+            background: rgba(20, 108, 148, 0.08);
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            z-index: 2;
         }
+        
+        /* Full Status */
+        .date-slots-grid .card[data-full="true"] .slot-availability {
+            background: rgba(176, 42, 55, 0.12);
+            color: var(--danger);
+        }
+        
+        /* Limited/Available Status */
+        .date-slots-grid .card:not([data-full="true"]) .slot-availability {
+            background: rgba(21, 115, 71, 0.12);
+            color: var(--success);
+        }
+        
+        /* Hidden Checkbox */
         .slot-checkbox {
             position: absolute;
             opacity: 0;
             pointer-events: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .date-heading {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+            
+            .date-heading .date-subtitle {
+                margin-left: 0;
+                margin-top: -2px;
+            }
+            
+            .date-slots-grid {
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                gap: 12px;
+            }
+            
+            .date-slots-grid .card {
+                padding: 14px;
+            }
+            
+            .date-slots-grid .card h3 {
+                font-size: 0.95rem;
+            }
+            
+            .date-slots-grid .card .meta {
+                font-size: 0.85rem;
+            }
+            
+            .slot-availability {
+                top: 10px;
+                right: 10px;
+                font-size: 0.65rem;
+                padding: 3px 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .date-slots-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .date-slots-grid .card {
+                padding: 12px;
+            }
+            
+            .date-slots-grid .card h3 {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Progress Panel Enhancement */
+        .progress-panel {
+            background: linear-gradient(135deg, rgba(20, 108, 148, 0.04), rgba(20, 108, 148, 0.01)) !important;
+            border: 1px solid rgba(20, 108, 148, 0.1) !important;
+            border-radius: 14px !important;
+            padding: 20px 24px !important;
+        }
+        
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .progress-labels span {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        
+        .progress-labels strong {
+            color: var(--accent-strong);
+            font-size: 1.1rem;
+        }
+        
+        .progress-bar {
+            height: 12px !important;
+            background: rgba(20, 108, 148, 0.08) !important;
+            border-radius: 20px !important;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #1b7fa1) !important;
+            border-radius: 20px;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(20, 108, 148, 0.2);
+        }
+        
+        /* Table Header Styling */
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+        }
+        
+        .table-header h2 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+        
+        .table-header .meta {
+            font-size: 0.95rem;
+            color: var(--muted-soft);
+            margin: 0;
+        }
+        
+        @media (max-width: 600px) {
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .table-header h2 {
+                font-size: 1.15rem;
+            }
+            
+            .progress-panel {
+                padding: 16px 20px !important;
+            }
         }
     </style>
 
@@ -289,13 +573,23 @@ foreach ($checkedSlotIds as $slotId) {
                                     $available = max(0, $totalRequired - $taken);
                                     $slotSelected = in_array($slot['id'], $checkedSlotIds, true);
                                     $slotDisabled = $preferencesLocked || ($available === 0 && !$slotSelected);
-                                    $availableText = $available === 0 ? 'Full' : $available . ' left';
+                                    $availableText = $available === 0 ? 'Full' : ($available === 1 ? '1 left' : $available . ' left');
+                                    $isFull = $available === 0;
                                 ?>
-                                    <div class="card" data-requirement="<?= intval($slot['requirement']) ?>">
+                                    <div class="card" 
+                                         data-requirement="<?= intval($slot['requirement']) ?>"
+                                         data-full="<?= $isFull ? 'true' : 'false' ?>"
+                                         data-disabled="<?= $slotDisabled ? 'true' : 'false' ?>">
                                         <span class="slot-availability"><?= htmlspecialchars($availableText) ?></span>
                                         <h3><?= htmlspecialchars($slot['slottext']) ?></h3>
-                                        <p class="meta">Time: <?= htmlspecialchars($slot['slottime']) ?></p>
-                                        <input type="checkbox" name="slot_ids[]" value="<?= $slot['id'] ?>" class="slot-checkbox" data-requirement="<?= intval($slot['requirement']) ?>" <?= $slotSelected ? 'checked' : '' ?> <?= $slotDisabled ? 'disabled' : '' ?>>
+                                        <p class="meta"><?= htmlspecialchars($slot['slottime']) ?></p>
+                                        <input type="checkbox" 
+                                               name="slot_ids[]" 
+                                               value="<?= $slot['id'] ?>" 
+                                               class="slot-checkbox" 
+                                               data-requirement="<?= intval($slot['requirement']) ?>" 
+                                               <?= $slotSelected ? 'checked' : '' ?> 
+                                               <?= $slotDisabled ? 'disabled' : '' ?>>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
@@ -344,7 +638,10 @@ document.addEventListener('DOMContentLoaded', function() {
         checkboxes.forEach(function(cb) {
             var card = cb.closest('.card');
             if (!card) return;
-            card.classList.toggle('selected', cb.checked && !cb.disabled);
+            var isSelected = cb.checked && !cb.disabled;
+            card.classList.toggle('selected', isSelected);
+            // Update data attribute for accessibility
+            card.setAttribute('data-selected', isSelected ? 'true' : 'false');
         });
     };
 
@@ -391,9 +688,19 @@ document.addEventListener('DOMContentLoaded', function() {
             cb.checked = !cb.checked;
             cb.dispatchEvent(new Event('change', { bubbles: true }));
         });
+        
+        // Add hover effect indicator
+        card.addEventListener('mouseenter', function() {
+            if (!cb.disabled && !locked) {
+                card.style.cursor = 'pointer';
+            }
+        });
     });
+    
+    // Initial sync
     updateProgress();
 });
 </script>
+<script src="../public/js/admin.js"></script>
 </body>
 </html>

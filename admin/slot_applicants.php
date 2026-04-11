@@ -25,7 +25,7 @@ if ($slot_id > 0) {
     $slotStmt->close();
 
     if ($slot) {
-        $participantStmt = $conn->prepare("SELECT u.id, u.name, u.email, u.role, u.department FROM preferences p JOIN users u ON p.userid = u.id WHERE p.slotid = ? ORDER BY u.name");
+        $participantStmt = $conn->prepare("SELECT u.id, u.name, u.email, u.phone, u.role, u.department FROM preferences p JOIN users u ON p.userid = u.id WHERE p.slotid = ? ORDER BY u.name");
         $participantStmt->bind_param('i', $slot_id);
         $participantStmt->execute();
         $participantResult = $participantStmt->get_result();
@@ -48,10 +48,10 @@ if ($slot && count($participants) > 0 && isset($_GET['export']) && $_GET['export
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename="slot_' . $slot_id . '_attendees.csv"');
     $output = fopen('php://output', 'w');
-    fputcsv($output, ['Sno.', 'Name', 'Email', 'Department', 'Role']);
+    fputcsv($output, ['Sno.', 'Name', 'Email', 'Phone', 'Department', 'Role']);
     $sno = 1;
     foreach ($participants as $participant) {
-        fputcsv($output, [$sno++, $participant['name'], $participant['email'], $participant['department'] ?: '—', $participant['role']]);
+        fputcsv($output, [$sno++, $participant['name'], $participant['email'], $participant['phone'] ?: '—', $participant['department'] ?: '—', $participant['role']]);
     }
     fclose($output);
     exit;
@@ -132,6 +132,7 @@ if ($slot && $selected_duty) {
                             <th>ID</th>
                             <th>Name</th>
                             <th>Email</th>
+                            <th>Phone</th>
                             <th>Department</th>
                             <th>Role</th>
                         </tr>
@@ -142,6 +143,7 @@ if ($slot && $selected_duty) {
                             <td><?= htmlspecialchars($participant['id']) ?></td>
                             <td><?= htmlspecialchars($participant['name']) ?></td>
                             <td><?= htmlspecialchars($participant['email']) ?></td>
+                            <td><?= htmlspecialchars($participant['phone'] ?? '—') ?></td>
                             <td><?= htmlspecialchars($participant['department'] ?? '—') ?></td>
                             <td><?= htmlspecialchars($participant['role']) ?></td>
                         </tr>

@@ -1,6 +1,12 @@
+<button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Open navigation">☰</button>
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <aside class="sidebar" id="sidebar">
-    <div class="brand">
-        <h2>ExamPanel</h2>
+    <div class="sidebar-header">
+        <div class="brand">
+            <h2>ExamPanel</h2>
+            <p>Administration</p>
+        </div>
+        <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close navigation">×</button>
     </div>
     <div class="profile">
         <div class="avatar"></div>

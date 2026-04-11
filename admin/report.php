@@ -6,6 +6,8 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SE
 }
 require_once '../lib/conn.php';
 
+$conn->query("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(20) DEFAULT NULL AFTER email");
+
 $username = htmlspecialchars($_SESSION['username']);
 $active_page = 'reports';
 
@@ -37,7 +39,8 @@ if ($selected_duty) {
 
 $results = [];
 $report_title = '';
-$csv_headers = ['ID','Name','Email','EmployeeID','Role'];
+$csv_headers = ['ID','Name','Email','Phone','Department','EmployeeID','Role'];
+$report_type = '';
 $filename = 'report.csv';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -54,55 +57,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     if ($action === 'slot_attendees' && $slot > 0) {
         // Users who selected a specific slot
-        $stmt = $conn->prepare('SELECT u.id,u.name,u.email,u.employeeid,u.role FROM preferences p JOIN users u ON p.userid = u.id WHERE p.slotid = ? ORDER BY u.name');
+        $stmt = $conn->prepare('SELECT u.id,u.name,u.email,u.phone,u.department,u.employeeid,u.role FROM preferences p JOIN users u ON p.userid = u.id WHERE p.slotid = ? ORDER BY u.name');
         $stmt->bind_param('i', $slot);
         $stmt->execute();
         $res = $stmt->get_result();
         while ($row = $res->fetch_assoc()) $results[] = $row;
         $stmt->close();
+        $report_type = 'users';
         $report_title = 'Attendees for slot ID ' . $slot;
         $filename = 'slot_' . $slot . '_attendees.csv';
     } elseif ($action === 'duty_opted' && $duty > 0) {
         // Users who opted any slot in duty
-        $stmt = $conn->prepare('SELECT DISTINCT u.id,u.name,u.email,u.employeeid,u.role FROM preferences p JOIN slot s ON p.slotid = s.id JOIN users u ON p.userid = u.id WHERE s.duty = ? ORDER BY u.name');
+        $stmt = $conn->prepare('SELECT DISTINCT u.id,u.name,u.email,u.phone,u.department,u.employeeid,u.role FROM preferences p JOIN slot s ON p.slotid = s.id JOIN users u ON p.userid = u.id WHERE s.duty = ? ORDER BY u.name');
         $stmt->bind_param('i', $duty);
         $stmt->execute();
         $res = $stmt->get_result();
         while ($row = $res->fetch_assoc()) $results[] = $row;
         $stmt->close();
+        $report_type = 'users';
         $report_title = 'Users who opted any slot for duty ID ' . $duty;
         $filename = 'duty_' . $duty . '_opted.csv';
     } elseif ($action === 'duty_not_opted' && $duty > 0) {
         // Users who have not opted any slot in that duty
-        $stmt = $conn->prepare('SELECT u.id,u.name,u.email,u.employeeid,u.role FROM users u WHERE u.id NOT IN (SELECT p.userid FROM preferences p JOIN slot s ON p.slotid = s.id WHERE s.duty = ?) ORDER BY u.name');
+        $stmt = $conn->prepare('SELECT u.id,u.name,u.email,u.phone,u.department,u.employeeid,u.role FROM users u WHERE u.id NOT IN (SELECT p.userid FROM preferences p JOIN slot s ON p.slotid = s.id WHERE s.duty = ?) ORDER BY u.name');
         $stmt->bind_param('i', $duty);
         $stmt->execute();
         $res = $stmt->get_result();
         while ($row = $res->fetch_assoc()) $results[] = $row;
         $stmt->close();
+        $report_type = 'users';
         $report_title = 'Users who DID NOT opt any slot for duty ID ' . $duty;
         $filename = 'duty_' . $duty . '_not_opted.csv';
     } elseif ($action === 'duty_slotwise' && $duty > 0) {
         // All slots for duty with users under each slot
-        $stmt = $conn->prepare('SELECT s.id AS slot_id,s.slottext,s.slotdate,s.slottime,u.id AS user_id,u.name,u.email,u.employeeid,u.role FROM slot s LEFT JOIN preferences p ON p.slotid = s.id LEFT JOIN users u ON p.userid = u.id WHERE s.duty = ? ORDER BY s.slotdate, s.slottime, u.name');
+        $stmt = $conn->prepare('SELECT s.id AS slot_id,s.slottext,s.slotdate,s.slottime,u.id AS user_id,u.name,u.email,u.phone,u.department,u.employeeid,u.role FROM slot s LEFT JOIN preferences p ON p.slotid = s.id LEFT JOIN users u ON p.userid = u.id WHERE s.duty = ? ORDER BY s.slotdate, s.slottime, u.name');
         $stmt->bind_param('i', $duty);
         $stmt->execute();
         $res = $stmt->get_result();
         while ($row = $res->fetch_assoc()) $results[] = $row;
         $stmt->close();
         $report_title = 'Slotwise list for duty ID ' . $duty;
-        $csv_headers = ['SlotID','Slot','SlotDate','SlotTime','UserID','Name','Email','EmployeeID','Role'];
+        $report_type = 'slotwise';
+        $csv_headers = ['SlotID','Slot','SlotDate','SlotTime','UserID','Name','Email','Phone','Department','EmployeeID','Role'];
         $filename = 'duty_' . $duty . '_slotwise.csv';
     } elseif ($action === 'duty_userwise' && $duty > 0) {
         // Users with the slot they opted for this duty
-        $stmt = $conn->prepare('SELECT u.id AS user_id,u.name,u.email,u.employeeid,u.role,s.id AS slot_id,s.slottext,s.slotdate,s.slottime FROM preferences p JOIN slot s ON p.slotid = s.id JOIN users u ON p.userid = u.id WHERE s.duty = ? ORDER BY u.name, s.slotdate, s.slottime');
+        $stmt = $conn->prepare('SELECT u.id AS user_id,u.name,u.email,u.phone,u.department,u.employeeid,u.role,s.id AS slot_id,s.slottext,s.slotdate,s.slottime FROM preferences p JOIN slot s ON p.slotid = s.id JOIN users u ON p.userid = u.id WHERE s.duty = ? ORDER BY u.name, s.slotdate, s.slottime');
         $stmt->bind_param('i', $duty);
         $stmt->execute();
         $res = $stmt->get_result();
         while ($row = $res->fetch_assoc()) $results[] = $row;
         $stmt->close();
         $report_title = 'Userwise list for duty ID ' . $duty;
-        $csv_headers = ['UserID','Name','Email','EmployeeID','Role','SlotID','Slot','SlotDate','SlotTime'];
+        $report_type = 'userwise';
+        $csv_headers = ['UserID','Name','Email','Phone','Department','EmployeeID','Role','SlotID','Slot','SlotDate','SlotTime'];
         $filename = 'duty_' . $duty . '_userwise.csv';
     }
 
@@ -122,6 +130,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     $r['user_id'],
                     $r['name'],
                     $r['email'],
+                    $r['phone'] ?? '',
+                    $r['department'] ?? '',
                     $r['employeeid'],
                     $r['role']
                 ]);
@@ -130,6 +140,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     $r['user_id'],
                     $r['name'],
                     $r['email'],
+                    $r['phone'] ?? '',
+                    $r['department'] ?? '',
                     $r['employeeid'],
                     $r['role'],
                     $r['slot_id'],
@@ -138,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     $r['slottime']
                 ]);
             } else {
-                fputcsv($out, [$r['id'],$r['name'],$r['email'],$r['employeeid'],$r['role']]);
+                fputcsv($out, [$r['id'],$r['name'],$r['email'],$r['phone'] ?? '',$r['department'] ?? '',$r['employeeid'],$r['role']]);
             }
         }
         fclose($out);
@@ -237,17 +249,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             <?php elseif (!empty($results)): ?>
                 <table>
                     <thead>
-                        <tr><th>ID</th><th>Name</th><th>Email</th><th>Employee ID</th><th>Role</th></tr>
+                        <?php if ($report_type === 'slotwise'): ?>
+                            <tr><th>Slot ID</th><th>Slot</th><th>Slot Date</th><th>Slot Time</th><th>User ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Department</th><th>Employee ID</th><th>Role</th></tr>
+                        <?php elseif ($report_type === 'userwise'): ?>
+                            <tr><th>User ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Department</th><th>Employee ID</th><th>Role</th><th>Slot ID</th><th>Slot</th><th>Slot Date</th><th>Slot Time</th></tr>
+                        <?php else: ?>
+                            <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Department</th><th>Employee ID</th><th>Role</th></tr>
+                        <?php endif; ?>
                     </thead>
                     <tbody>
                         <?php foreach ($results as $r): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($r['id']) ?></td>
-                                <td><?= htmlspecialchars($r['name']) ?></td>
-                                <td><?= htmlspecialchars($r['email']) ?></td>
-                                <td><?= htmlspecialchars($r['employeeid']) ?></td>
-                                <td><?= htmlspecialchars($r['role']) ?></td>
-                            </tr>
+                            <?php if ($report_type === 'slotwise'): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($r['slot_id']) ?></td>
+                                    <td><?= htmlspecialchars($r['slottext']) ?></td>
+                                    <td><?= htmlspecialchars($r['slotdate']) ?></td>
+                                    <td><?= htmlspecialchars($r['slottime']) ?></td>
+                                    <td><?= htmlspecialchars($r['user_id'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($r['name'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($r['email'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($r['phone'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($r['department'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($r['employeeid'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($r['role'] ?? '') ?></td>
+                                </tr>
+                            <?php elseif ($report_type === 'userwise'): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($r['user_id']) ?></td>
+                                    <td><?= htmlspecialchars($r['name']) ?></td>
+                                    <td><?= htmlspecialchars($r['email']) ?></td>
+                                    <td><?= htmlspecialchars($r['phone'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($r['department'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($r['employeeid']) ?></td>
+                                    <td><?= htmlspecialchars($r['role']) ?></td>
+                                    <td><?= htmlspecialchars($r['slot_id']) ?></td>
+                                    <td><?= htmlspecialchars($r['slottext']) ?></td>
+                                    <td><?= htmlspecialchars($r['slotdate']) ?></td>
+                                    <td><?= htmlspecialchars($r['slottime']) ?></td>
+                                </tr>
+                            <?php else: ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($r['id']) ?></td>
+                                    <td><?= htmlspecialchars($r['name']) ?></td>
+                                    <td><?= htmlspecialchars($r['email']) ?></td>
+                                    <td><?= htmlspecialchars($r['phone'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($r['department'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($r['employeeid']) ?></td>
+                                    <td><?= htmlspecialchars($r['role']) ?></td>
+                                </tr>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </tbody>
                 </table>

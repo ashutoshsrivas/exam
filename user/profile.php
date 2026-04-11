@@ -67,12 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     <link rel="stylesheet" href="../public/style/user.css">
     <link rel="stylesheet" href="../public/style/admin.css">
     <style>
-        .profile-card { max-width:520px; margin: 24px auto; padding:20px; border-radius:12px; background: rgba(255,255,255,0.95); border:1px solid rgba(0,0,0,0.06); }
-        .profile-card h2 { margin-top:0; }
-        .form-group { margin-bottom:14px; }
-        .password-container { display:flex; gap:8px; }
-        .password-container input { flex:1; }
-        .toggle-password { padding:8px 10px; border-radius:6px; background: rgba(0,0,0,0.06); border: none; cursor:pointer; }
+        .profile-card { max-width: 720px; margin: 0; }
+        .profile-card form { display: grid; gap: 16px; }
     </style>
 </head>
 <body class="user-open">
@@ -86,7 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     </header>
     <section class="content">
         <div class="profile-card">
-            <h2>Reset Password</h2>
+            <div class="table-header">
+                <h2>Reset Password</h2>
+            </div>
             <?php if ($message): ?>
                 <div class="message <?= $message_type ?>"><?= htmlspecialchars($message) ?></div>
             <?php endif; ?>
@@ -125,5 +123,6 @@ function togglePassword(id) {
     if (el.type === 'password') { el.type = 'text'; } else { el.type = 'password'; }
 }
 </script>
+<script src="../public/js/admin.js"></script>
 </body>
 </html>
