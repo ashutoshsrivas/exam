@@ -9,7 +9,7 @@ $active_page = 'duties';
 
 require_once '../lib/conn.php';
 
-$query = "SELECT id, title, academicsession, type, professor, assistantprofessor, associateprofessor, researchscholar, createdat FROM duties ORDER BY id";
+$query = "SELECT id, title, academicsession, type, professor, assistantprofessor, associateprofessor, researchscholar, specialrole1, specialrole2, specialrole3, specialrole4, accepting_bookings, createdat FROM duties ORDER BY id";
 $result = $conn->query($query);
 $duties = [];
 if ($result) {
@@ -29,13 +29,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_duty'])) {
     $assistant = intval($_POST['assistant']);
     $associate = intval($_POST['associate']);
     $research = intval($_POST['research']);
+    $special1 = intval($_POST['special1']);
+    $special2 = intval($_POST['special2']);
+    $special3 = intval($_POST['special3']);
+    $special4 = intval($_POST['special4']);
 
     if (empty($title) || empty($academicsession) || empty($type)) {
         $message = 'All fields are required.';
         $message_type = 'error';
     } else {
-        $stmt = $conn->prepare("INSERT INTO duties (title, academicsession, type, professor, assistantprofessor, associateprofessor, researchscholar, createdat) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-        $stmt->bind_param("sssiiii", $title, $academicsession, $type, $professor, $assistant, $associate, $research);
+        $stmt = $conn->prepare("INSERT INTO duties (title, academicsession, type, professor, assistantprofessor, associateprofessor, researchscholar, specialrole1, specialrole2, specialrole3, specialrole4, createdat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+        $stmt->bind_param("sssiiiiiiii", $title, $academicsession, $type, $professor, $assistant, $associate, $research, $special1, $special2, $special3, $special4);
         if ($stmt->execute()) {
             $message = 'Duty added successfully.';
             $message_type = 'success';
@@ -77,6 +81,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_duty'])) {
     $stmt->close();
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_booking_status'])) {
+    $duty_id = intval($_POST['duty_id']);
+    $current_status = intval($_POST['current_status']);
+    $new_status = $current_status === 1 ? 0 : 1;
+    
+    $stmt = $conn->prepare("UPDATE duties SET accepting_bookings = ? WHERE id = ?");
+    $stmt->bind_param("ii", $new_status, $duty_id);
+    if ($stmt->execute()) {
+        $status_text = $new_status === 1 ? 'opened' : 'closed';
+        $message = "Booking status {$status_text} successfully.";
+        $message_type = 'success';
+        // Refresh duties list
+        $result = $conn->query($query);
+        $duties = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $duties[] = $row;
+            }
+        }
+    } else {
+        $message = 'Error updating booking status.';
+        $message_type = 'error';
+    }
+    $stmt->close();
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_duty'])) {
     $duty_id = intval($_POST['duty_id']);
     $title = trim($_POST['title']);
@@ -86,13 +116,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_duty'])) {
     $assistant = intval($_POST['assistant']);
     $associate = intval($_POST['associate']);
     $research = intval($_POST['research']);
+    $special1 = intval($_POST['special1']);
+    $special2 = intval($_POST['special2']);
+    $special3 = intval($_POST['special3']);
+    $special4 = intval($_POST['special4']);
 
     if (empty($title) || empty($academicsession) || empty($type)) {
         $message = 'All fields are required.';
         $message_type = 'error';
     } else {
-        $stmt = $conn->prepare("UPDATE duties SET title = ?, academicsession = ?, type = ?, professor = ?, assistantprofessor = ?, associateprofessor = ?, researchscholar = ? WHERE id = ?");
-        $stmt->bind_param("sssiiiii", $title, $academicsession, $type, $professor, $assistant, $associate, $research, $duty_id);
+        $stmt = $conn->prepare("UPDATE duties SET title = ?, academicsession = ?, type = ?, professor = ?, assistantprofessor = ?, associateprofessor = ?, researchscholar = ?, specialrole1 = ?, specialrole2 = ?, specialrole3 = ?, specialrole4 = ? WHERE id = ?");
+        $stmt->bind_param("sssiiiiiiiii", $title, $academicsession, $type, $professor, $assistant, $associate, $research, $special1, $special2, $special3, $special4, $duty_id);
         if ($stmt->execute()) {
             $message = 'Duty updated successfully.';
             $message_type = 'success';
@@ -153,23 +187,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_duty'])) {
                             <th>Title</th>
                             <th>Academic Session</th>
                             <th>Type</th>
+                            <th>Status</th>
                             <th>Created At</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($duties as $duty): ?>
+                        <?php 
+                            $is_accepting = intval($duty['accepting_bookings'] ?? 1);
+                            $status_class = $is_accepting ? 'status-open' : 'status-closed';
+                            $status_text = $is_accepting ? 'Open' : 'Closed';
+                        ?>
                         <tr>
                             <td><?= htmlspecialchars($duty['id']) ?></td>
                             <td><?= htmlspecialchars($duty['title']) ?></td>
                             <td><?= htmlspecialchars($duty['academicsession']) ?></td>
                             <td><?= htmlspecialchars($duty['type']) ?></td>
+                            <td>
+                                <span class="status-badge <?= $status_class ?>"><?= $status_text ?></span>
+                            </td>
                             <td><?= date('M d, Y H:i', strtotime($duty['createdat'])) ?></td>
                             <td>
                                 <div class="actions">
-                                    <button class="btn small edit-btn" onclick="openEditModal(<?= $duty['id'] ?>, '<?= addslashes(htmlspecialchars($duty['title'])) ?>', '<?= addslashes(htmlspecialchars($duty['academicsession'])) ?>', '<?= addslashes(htmlspecialchars($duty['type'])) ?>', <?= intval($duty['professor'] ?? 0) ?>, <?= intval($duty['assistantprofessor'] ?? 0) ?>, <?= intval($duty['associateprofessor'] ?? 0) ?>, <?= intval($duty['researchscholar'] ?? 0) ?>)" title="Edit Duty">
+                                    <button class="btn small edit-btn" onclick="openEditModal(<?= $duty['id'] ?>, '<?= addslashes(htmlspecialchars($duty['title'])) ?>', '<?= addslashes(htmlspecialchars($duty['academicsession'])) ?>', '<?= addslashes(htmlspecialchars($duty['type'])) ?>', <?= intval($duty['professor'] ?? 0) ?>, <?= intval($duty['assistantprofessor'] ?? 0) ?>, <?= intval($duty['associateprofessor'] ?? 0) ?>, <?= intval($duty['researchscholar'] ?? 0) ?>, <?= intval($duty['specialrole1'] ?? 0) ?>, <?= intval($duty['specialrole2'] ?? 0) ?>, <?= intval($duty['specialrole3'] ?? 0) ?>, <?= intval($duty['specialrole4'] ?? 0) ?>)" title="Edit Duty">
                                         ✏️ Edit
                                     </button>
+                                    <form method="post" style="display:inline;">
+                                        <input type="hidden" name="toggle_booking_status" value="1">
+                                        <input type="hidden" name="duty_id" value="<?= $duty['id'] ?>">
+                                        <input type="hidden" name="current_status" value="<?= $is_accepting ?>">
+                                        <button type="submit" class="btn small <?= $is_accepting ? 'close-btn' : 'open-btn' ?>" title="<?= $is_accepting ? 'Stop Accepting Bookings' : 'Start Accepting Bookings' ?>">
+                                            <?= $is_accepting ? '🔒 Close' : '🔓 Open' ?>
+                                        </button>
+                                    </form>
                                     <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this duty?')">
                                         <input type="hidden" name="delete_duty" value="1">
                                         <input type="hidden" name="duty_id" value="<?= $duty['id'] ?>">
@@ -222,6 +273,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_duty'])) {
                     <label for="research">Research Scholar Limit:</label>
                     <input type="number" id="research" name="research" min="0" value="0" required>
                 </div>
+                <div class="form-group">
+                    <label for="special1">Special Role 1 Limit:</label>
+                    <input type="number" id="special1" name="special1" min="0" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="special2">Special Role 2 Limit:</label>
+                    <input type="number" id="special2" name="special2" min="0" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="special3">Special Role 3 Limit:</label>
+                    <input type="number" id="special3" name="special3" min="0" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="special4">Special Role 4 Limit:</label>
+                    <input type="number" id="special4" name="special4" min="0" value="0" required>
+                </div>
                 <button type="submit" class="btn">Add Duty</button>
             </form>
         </div>
@@ -263,6 +330,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_duty'])) {
                     <label for="edit_research">Research Scholar Limit:</label>
                     <input type="number" id="edit_research" name="research" min="0" value="0" required>
                 </div>
+                <div class="form-group">
+                    <label for="edit_special1">Special Role 1 Limit:</label>
+                    <input type="number" id="edit_special1" name="special1" min="0" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_special2">Special Role 2 Limit:</label>
+                    <input type="number" id="edit_special2" name="special2" min="0" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_special3">Special Role 3 Limit:</label>
+                    <input type="number" id="edit_special3" name="special3" min="0" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_special4">Special Role 4 Limit:</label>
+                    <input type="number" id="edit_special4" name="special4" min="0" value="0" required>
+                </div>
                 <button type="submit" class="btn">Update Duty</button>
             </form>
         </div>
@@ -278,7 +361,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_duty'])) {
             document.getElementById('addDutyModal').style.display = 'none';
         }
 
-        function openEditModal(id, title, session, type, professor, assistant, associate, research) {
+        function openEditModal(id, title, session, type, professor, assistant, associate, research, special1, special2, special3, special4) {
             document.getElementById('edit_duty_id').value = id;
             document.getElementById('edit_title').value = title;
             document.getElementById('edit_academicsession').value = session;
@@ -287,6 +370,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_duty'])) {
             document.getElementById('edit_assistant').value = assistant;
             document.getElementById('edit_associate').value = associate;
             document.getElementById('edit_research').value = research;
+            document.getElementById('edit_special1').value = special1;
+            document.getElementById('edit_special2').value = special2;
+            document.getElementById('edit_special3').value = special3;
+            document.getElementById('edit_special4').value = special4;
             document.getElementById('editModal').style.display = 'block';
         }
 

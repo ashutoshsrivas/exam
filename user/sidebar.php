@@ -18,6 +18,7 @@
     </div>
     <nav class="nav">
         <a href="dashboard.php" class="nav-item <?= $active_page == 'dashboard' ? 'active' : '' ?>">Dashboard</a>
+        <a href="bookings.php" class="nav-item <?= $active_page == 'bookings' ? 'active' : '' ?>">My Slots</a>
         <!-- <a href="dashboard.php#duties" class="nav-item <?= $active_page == 'duties' ? 'active' : '' ?>">Duties</a> -->
         <!-- <a href="../admin/slots.php" class="nav-item">View Slots</a> -->
         <a href="profile.php" class="nav-item <?= $active_page == 'profile' ? 'active' : '' ?>">Profile</a> 

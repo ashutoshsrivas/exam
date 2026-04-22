@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 11, 2026 at 12:00 PM
+-- Generation Time: Apr 22, 2026 at 11:39 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -29,22 +29,28 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `duties` (
   `id` int(11) NOT NULL,
-  `title` varchar(255) DEFAULT NULL,
-  `academicsession` varchar(100) DEFAULT NULL,
-  `type` varchar(100) DEFAULT NULL,
-  `createdat` varchar(50) DEFAULT NULL,
+  `title` text DEFAULT NULL,
+  `academicsession` text DEFAULT NULL,
+  `type` text DEFAULT NULL,
+  `createdat` text DEFAULT NULL,
   `professor` int(11) DEFAULT 4,
   `assistantprofessor` int(11) DEFAULT 8,
   `associateprofessor` int(11) DEFAULT 6,
-  `researchscholar` int(11) DEFAULT 10
+  `researchscholar` int(11) DEFAULT 10,
+  `specialrole1` int(11) DEFAULT 0,
+  `specialrole2` int(11) DEFAULT 0,
+  `specialrole3` int(11) DEFAULT 0,
+  `specialrole4` int(11) DEFAULT 0,
+  `accepting_bookings` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `duties`
 --
 
-INSERT INTO `duties` (`id`, `title`, `academicsession`, `type`, `createdat`, `professor`, `assistantprofessor`, `associateprofessor`, `researchscholar`) VALUES
-(1, 'test', '2025-26', 'Mid Term', '2026-01-02 18:26:09', 2, 8, 6, 10);
+INSERT INTO `duties` (`id`, `title`, `academicsession`, `type`, `createdat`, `professor`, `assistantprofessor`, `associateprofessor`, `researchscholar`, `specialrole1`, `specialrole2`, `specialrole3`, `specialrole4`, `accepting_bookings`) VALUES
+(1, 'test', '2025-26', 'Mid Term', '2026-01-02 18:26:09', 2, 8, 6, 10, 0, 0, 2, 0, 1),
+(2, 'a', 'a', 'a', '2026-04-22 13:32:40', 1, 1, 1, 1, 3, 2, 2, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -54,7 +60,7 @@ INSERT INTO `duties` (`id`, `title`, `academicsession`, `type`, `createdat`, `pr
 
 CREATE TABLE `limits` (
   `id` int(11) NOT NULL,
-  `role` varchar(100) DEFAULT NULL,
+  `role` text DEFAULT NULL,
   `duties` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -67,7 +73,11 @@ INSERT INTO `limits` (`id`, `role`, `duties`) VALUES
 (2, 'Assistant Professor', 8),
 (3, 'Associate Professor', 6),
 (4, 'Professor', 4),
-(5, 'Research Scholar', 10);
+(5, 'Research Scholar', 10),
+(6, 'Special Role 1', 0),
+(7, 'Special Role 2', 0),
+(8, 'Special Role 3', 0),
+(9, 'Special Role 4', 0);
 
 -- --------------------------------------------------------
 
@@ -98,7 +108,7 @@ INSERT INTO `preferences` (`id`, `slotid`, `userid`, `times`) VALUES
 
 CREATE TABLE `rooms` (
   `id` int(11) NOT NULL,
-  `name` varchar(100) DEFAULT NULL,
+  `name` text DEFAULT NULL,
   `need` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -119,9 +129,9 @@ INSERT INTO `rooms` (`id`, `name`, `need`) VALUES
 CREATE TABLE `slot` (
   `id` int(11) NOT NULL,
   `duty` int(11) DEFAULT NULL,
-  `slottext` varchar(255) DEFAULT NULL,
-  `slottime` varchar(10) DEFAULT NULL,
-  `slotdate` varchar(20) DEFAULT NULL,
+  `slottext` text DEFAULT NULL,
+  `slottime` text DEFAULT NULL,
+  `slotdate` text DEFAULT NULL,
   `requirement` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -130,7 +140,6 @@ CREATE TABLE `slot` (
 --
 
 INSERT INTO `slot` (`id`, `duty`, `slottext`, `slottime`, `slotdate`, `requirement`) VALUES
-(1, 1, 'M1', '12:30', '2026-01-14', 1),
 (2, 1, 'demo slot', '12:30', '2026-01-22', 20),
 (3, 1, 'Small', '16:30', '2026-01-29', 2);
 
@@ -142,13 +151,13 @@ INSERT INTO `slot` (`id`, `duty`, `slottext`, `slottime`, `slotdate`, `requireme
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
-  `employeeid` varchar(50) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `email` varchar(191) DEFAULT NULL,
+  `employeeid` text DEFAULT NULL,
+  `name` text DEFAULT NULL,
+  `email` text DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
-  `pass` char(64) DEFAULT NULL,
-  `role` varchar(100) DEFAULT NULL,
-  `department` varchar(100) DEFAULT NULL
+  `pass` text DEFAULT NULL,
+  `role` text DEFAULT NULL,
+  `department` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -157,7 +166,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `employeeid`, `name`, `email`, `phone`, `pass`, `role`, `department`) VALUES
 (1, 'IT101645', 'Ashutosh Srivastava', 'ashutoshsrivastava.mgt@geu.ac.in', '8126134565', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'Admin', 'Managemt'),
-(2, '123456', 'Ashutosh Test', 'ashu@g.com', '1234567890', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'Assistant Professor', 'Managemt'),
+(2, '123456', 'Ashutosh Test', 'ashu@g.com', '1234567890', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'Special Role 1', 'Managemt'),
 (3, '101', '1', '', NULL, 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'Professor', 'Computer Application'),
 (5, '3114584', 'Dr. Vijay Kumar Patidar', '', '9997997127', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'Professor', 'Aerospace Engineering'),
 (6, '1624112240', 'Dr. Pushpendra Kumar', '', '7505620739', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'Professor', 'Aerospace Engineering'),
@@ -603,7 +612,7 @@ ALTER TABLE `duties`
 --
 ALTER TABLE `limits`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `role` (`role`);
+  ADD UNIQUE KEY `role` (`role`) USING HASH;
 
 --
 -- Indexes for table `preferences`
@@ -616,7 +625,7 @@ ALTER TABLE `preferences`
 --
 ALTER TABLE `rooms`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`);
+  ADD UNIQUE KEY `name` (`name`) USING HASH;
 
 --
 -- Indexes for table `slot`
@@ -629,7 +638,7 @@ ALTER TABLE `slot`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `employeeid` (`employeeid`);
+  ADD UNIQUE KEY `employeeid` (`employeeid`) USING HASH;
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -639,13 +648,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `duties`
 --
 ALTER TABLE `duties`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `limits`
 --
 ALTER TABLE `limits`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `preferences`

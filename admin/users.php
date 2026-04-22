@@ -281,6 +281,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <option value="Associate Professor">Associate Professor</option>
                         <option value="Professor">Professor</option>
                         <option value="Research Scholar">Research Scholar</option>
+                        <option value="Special Role 1">Special Role 1</option>
+                        <option value="Special Role 2">Special Role 2</option>
+                        <option value="Special Role 3">Special Role 3</option>
+                        <option value="Special Role 4">Special Role 4</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -348,6 +352,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <option value="Associate Professor">Associate Professor</option>
                         <option value="Professor">Professor</option>
                         <option value="Research Scholar">Research Scholar</option>
+                        <option value="Special Role 1">Special Role 1</option>
+                        <option value="Special Role 2">Special Role 2</option>
+                        <option value="Special Role 3">Special Role 3</option>
+                        <option value="Special Role 4">Special Role 4</option>
                     </select>
                 </div>
                 <button type="submit" class="btn">Add User</button>

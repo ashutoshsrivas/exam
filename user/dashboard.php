@@ -30,12 +30,16 @@ $roleLimitColumn = [
     'Assistant Professor' => 'assistantprofessor',
     'Associate Professor' => 'associateprofessor',
     'Research Scholar' => 'researchscholar',
+    'Special Role 1' => 'specialrole1',
+    'Special Role 2' => 'specialrole2',
+    'Special Role 3' => 'specialrole3',
+    'Special Role 4' => 'specialrole4',
 ];
 $normalizedRole = ucwords(strtolower($user_role));
 $limitColumn = $roleLimitColumn[$user_role] ?? $roleLimitColumn[$normalizedRole] ?? 'researchscholar';
 
 $duties = [];
-$query = "SELECT id, title, academicsession, type, createdat, professor, assistantprofessor, associateprofessor, researchscholar FROM duties ORDER BY createdat DESC";
+$query = "SELECT id, title, academicsession, type, createdat, professor, assistantprofessor, associateprofessor, researchscholar, specialrole1, specialrole2, specialrole3, specialrole4 FROM duties WHERE accepting_bookings = 1 ORDER BY createdat DESC";
 if ($result = $conn->query($query)) {
     while ($row = $result->fetch_assoc()) {
         $stmt = $conn->prepare("SELECT COUNT(*) as cnt FROM slot WHERE duty = ?");

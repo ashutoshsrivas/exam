@@ -1162,3 +1162,49 @@ a.btn:hover {
     font-size: 16px;
   }
 }
+
+/* Duty Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-open {
+  background: rgba(21, 115, 71, 0.12);
+  color: var(--success);
+  border: 1px solid rgba(21, 115, 71, 0.25);
+}
+
+.status-closed {
+  background: rgba(176, 42, 55, 0.12);
+  color: var(--danger);
+  border: 1px solid rgba(176, 42, 55, 0.25);
+}
+
+/* Booking Toggle Buttons */
+.btn.close-btn {
+  background: rgba(176, 42, 55, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(176, 42, 55, 0.3);
+}
+
+.btn.close-btn:hover {
+  background: rgba(176, 42, 55, 0.2);
+  border-color: var(--danger);
+}
+
+.btn.open-btn {
+  background: rgba(21, 115, 71, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(21, 115, 71, 0.3);
+}
+
+.btn.open-btn:hover {
+  background: rgba(21, 115, 71, 0.2);
+  border-color: var(--success);
+}

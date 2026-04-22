@@ -31,8 +31,8 @@ if (!$duty_id) {
     exit;
 }
 
-// Fetch duty info (include limit columns)
-$stmt = $conn->prepare("SELECT title, academicsession, type, professor, assistantprofessor, associateprofessor, researchscholar FROM duties WHERE id = ?");
+// Fetch duty info (include limit columns and booking status)
+$stmt = $conn->prepare("SELECT title, academicsession, type, professor, assistantprofessor, associateprofessor, researchscholar, specialrole1, specialrole2, specialrole3, specialrole4, accepting_bookings FROM duties WHERE id = ?");
 $stmt->bind_param("i", $duty_id);
 $stmt->execute();
 $duty = $stmt->get_result()->fetch_assoc();
@@ -41,11 +41,17 @@ if (!$duty) {
     exit;
 }
 
+$is_accepting_bookings = intval($duty['accepting_bookings'] ?? 1) === 1;
+
 $roleLimitColumn = [
     'Professor' => 'professor',
     'Assistant Professor' => 'assistantprofessor',
     'Associate Professor' => 'associateprofessor',
     'Research Scholar' => 'researchscholar',
+    'Special Role 1' => 'specialrole1',
+    'Special Role 2' => 'specialrole2',
+    'Special Role 3' => 'specialrole3',
+    'Special Role 4' => 'specialrole4',
 ];
 $normalizedRole = ucwords(strtolower($user_role));
 $limitColumn = $roleLimitColumn[$user_role] ?? $roleLimitColumn[$normalizedRole] ?? 'researchscholar';
@@ -100,7 +106,9 @@ if ($prefStmt) {
 $preferencesLocked = count($existingPreferences) > 0;
 $savedSlotIds = $existingPreferences;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ($preferencesLocked) {
+    if (!$is_accepting_bookings) {
+        $errorMessage = 'This duty is no longer accepting slot bookings.';
+    } elseif ($preferencesLocked) {
         $errorMessage = 'Preferences cannot be changed once saved.';
     } else {
         $incoming = isset($_POST['slot_ids']) && is_array($_POST['slot_ids']) ? $_POST['slot_ids'] : [];
@@ -525,7 +533,12 @@ foreach ($checkedSlotIds as $slotId) {
                         <?= htmlspecialchars($duty['academicsession']) ?> &mdash; <?= htmlspecialchars($duty['type']) ?>
                     </div>
                 </div>
-                <div class="progress-panel" data-limit="<?= $roleLimit ?>" data-locked="<?= $preferencesLocked ? '1' : '0' ?>">
+                <?php if (!$is_accepting_bookings): ?>
+                    <div class="status warning" style="margin-bottom: 16px;">
+                        <strong>⚠️ Bookings Closed:</strong> This duty is no longer accepting new slot bookings. <?php if ($preferencesLocked): ?>You can view your selected slots below, but cannot make changes.<?php else: ?>You have not selected any slots for this duty.<?php endif; ?>
+                    </div>
+                <?php endif; ?>
+                <div class="progress-panel" data-limit="<?= $roleLimit ?>" data-locked="<?= $preferencesLocked ? '1' : '0' ?>"<?php if (!$is_accepting_bookings): ?> style="opacity: 0.6; pointer-events: none;"<?php endif; ?>>>
                     <div class="progress-labels">
                         <span>Your limit</span>
                         <span><strong id="progressValue">0</strong>/<?= $roleLimit ?></span>
@@ -589,7 +602,7 @@ foreach ($checkedSlotIds as $slotId) {
                                                class="slot-checkbox" 
                                                data-requirement="<?= intval($slot['requirement']) ?>" 
                                                <?= $slotSelected ? 'checked' : '' ?> 
-                                               <?= $slotDisabled ? 'disabled' : '' ?>>
+                                               <?= ($slotDisabled || !$is_accepting_bookings) ? 'disabled' : '' ?>>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
