@@ -13,7 +13,6 @@
         <div class="avatar"></div>
             <div class="meta">
                 <div class="name"><?= $username ?></div>
-                <div class="role"><?= htmlspecialchars($roleLabel) ?></div>
             </div>
     </div>
     <nav class="nav">
